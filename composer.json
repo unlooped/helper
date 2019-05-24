@@ -1,0 +1,22 @@
+{
+    "name": "unlooped/helper",
+    "description": "Often used Helper Classes",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Steffen Persch",
+            "email": "s.persch@unlooped.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ramsey/uuid": "^3.8",
+        "voku/stringy": "^5.0",
+        "mexitek/phpcolors": "^0.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Unlooped\\Helper\\": ""
+        }
+    }
+}
