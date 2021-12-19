@@ -9,10 +9,14 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.4",
+        "ext-pcntl": "*",
         "ramsey/uuid": "^3.8",
         "voku/stringy": "^5.0",
-        "mexitek/phpcolors": "^0.4.0"
+        "mexitek/phpcolors": "^0.4.0",
+        "nesbot/carbon": "^2.55",
+        "symfony/console": "^4|^5",
+        "symfony/process": "^4|^5"
     },
     "autoload": {
         "psr-4": {
