@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc53e966c473ae33ce7bc45e3b85e7ce",
+    "content-hash": "587a8e1810cda2372f63c7209b38ba26",
     "packages": [
         {
             "name": "mexitek/phpcolors",
