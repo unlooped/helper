@@ -35,6 +35,8 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
     protected ConsoleOutputInterface $output;
     protected bool $terminate = false;
 
+    protected int $totalStartedProcesses = 0;
+
     public function __construct(
         string $projectDir
     ) {
@@ -99,6 +101,7 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
                     $process = $this->getProcessForCommand($command);
 
                     $process->io->writeln('Start new process');
+                    $this->totalStartedProcesses++;
 
                     $process->start();
                     $process->update();
@@ -119,7 +122,7 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
                 }
             }
             usleep(250000);
-        } while ($runningProcesses > 0);
+        } while ($runningProcesses > 0 || $this->totalStartedProcesses < $commandsToRunCount);
 
 
         return Command::SUCCESS;
