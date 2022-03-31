@@ -94,9 +94,6 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
         $lastStart = null;
         $nextDelay = 0;
         do {
-            if ($this->terminate) {
-                break;
-            }
             $runningProcesses = $this->countRunningProcesses();
             if (!$this->terminate && $runningProcesses < $this->maxConcurrentProcesses && count($commandsToRun) > 0) {
                 if (!$lastStart || (time() - $lastStart) >= $nextDelay) {
@@ -123,6 +120,9 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
                     $subProcess->update();
                     $this->updateOverviewForProcess($subProcess);
                 }
+            }
+            if ($this->terminate && $runningProcesses === 0) {
+                break;
             }
             usleep(250000);
         } while ($runningProcesses > 0 || $this->totalStartedProcesses < $commandsToRunCount);
