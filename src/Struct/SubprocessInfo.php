@@ -30,6 +30,8 @@ class SubprocessInfo
 
     private array $outputRows = [];
 
+    private $outputRowFilterCb;
+
     public function __construct(
         Process $process,
         SymfonyStyle $io,
@@ -46,6 +48,11 @@ class SubprocessInfo
         ConsoleSectionOutput $output
     ): self {
         return new self($process, $io, $output);
+    }
+
+    public function setOuputRowFilter(callable $callable)
+    {
+        $this->outputRowFilterCb = $callable;
     }
 
     public function setOutput(ConsoleSectionOutput $output): self
@@ -76,7 +83,16 @@ class SubprocessInfo
             array_shift($this->outputRows);
         }
 
-        $this->outputRows[]   = trim($row);
+        if (isset($this->outputRowFilterCb) && is_callable($this->outputRowFilterCb)) {
+            $cb = $this->outputRowFilterCb;
+            $nRow = $cb(trim($row));
+            if ($nRow) {
+                $this->outputRows[] = $nRow;
+            }
+        } else {
+            $this->outputRows[]   = trim($row);
+        }
+
         $this->lastOutputTime = CarbonImmutable::now();
     }
 
