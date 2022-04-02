@@ -48,6 +48,28 @@ class SubprocessInfo
         return new self($process, $io, $output);
     }
 
+    public function setOutput(ConsoleSectionOutput $output): self
+    {
+        $this->output = $output;
+        return $this;
+    }
+
+    public function getOutput(): ConsoleSectionOutput
+    {
+        return $this->output;
+    }
+
+    public function getIo(): SymfonyStyle
+    {
+        return $this->io;
+    }
+
+    public function setIo(SymfonyStyle $io): self
+    {
+        $this->io = $io;
+        return $this;
+    }
+
     public function addOutputRow(string $row): void
     {
         if (count($this->outputRows) > $this->maxOutputRows) {
@@ -165,4 +187,11 @@ class SubprocessInfo
     {
         return $this->startTime->longAbsoluteDiffForHumans($this->endTime);
     }
+
+    public function __toString(): string
+    {
+        return $this->process->getCommandLine();
+    }
+
+
 }

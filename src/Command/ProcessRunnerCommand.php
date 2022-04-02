@@ -29,6 +29,8 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
     protected bool $showDetailedLogs = false;
 
     protected array $subProcesses = [];
+    protected array $inactiveSubProcesses = [];
+
     protected string $projectDirectory;
     protected CarbonImmutable $startTime;
     protected InputInterface $input;
@@ -36,6 +38,7 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
     protected bool $terminate = false;
 
     protected int $totalStartedProcesses = 0;
+    protected int $totalFinishedProcesses = 0;
 
     public function __construct(
         string $projectDir
@@ -113,14 +116,27 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
                 }
             }
 
+            $newInactiveProcesses = [];
             foreach ($this->subProcesses as $subProcess) {
                 if ($subProcess->endTime === null
                     || SubprocessInfo::STATUS_RUNNING === $subProcess->getStatus())
                 {
+                    $preEndTime = $subProcess->endTime;
                     $subProcess->update();
+                    if (null === $preEndTime && null !== $subProcess->endTime) {
+                        $this->inactiveSubProcesses[] = $subProcess;
+                        $newInactiveProcesses[] = $subProcess;
+                    }
+
                     $this->updateOverviewForProcess($subProcess);
                 }
             }
+
+            /** @var SubprocessInfo $newInactiveProcess */
+            foreach ($newInactiveProcesses as $newInactiveProcess) {
+                $this->moveInactiveProcessToTop($newInactiveProcess);
+            }
+
             if ($this->terminate && $runningProcesses === 0) {
                 break;
             }
@@ -134,6 +150,37 @@ abstract class ProcessRunnerCommand extends Command implements SignalableCommand
     public function getCommandsToRun(): array
     {
         return [];
+    }
+
+    protected function moveInactiveProcessToTop(SubprocessInfo $newInactiveProcess): void
+    {
+        $newInactiveProcessIndex = array_search($newInactiveProcess, $this->subProcesses, true);
+
+        $subProcess = $this->subProcesses[$this->totalFinishedProcesses];
+        if ($subProcess === $newInactiveProcess) {
+            $this->totalFinishedProcesses++;
+            return;
+        }
+
+        $this->subProcesses[$newInactiveProcessIndex] = $subProcess;
+        $this->subProcesses[$this->totalFinishedProcesses] = $newInactiveProcess;
+
+
+        $replaceOutput = $subProcess->getOutput();
+        $replaceIo     = $subProcess->getIo();
+
+        $newActiveOutput = $newInactiveProcess->getOutput();
+        $newActiveIo     = $newInactiveProcess->getIo();
+
+        $subProcess->setOutput($newActiveOutput);
+        $subProcess->setIo($newActiveIo);
+        $newInactiveProcess->setOutput($replaceOutput);
+        $newInactiveProcess->setIo($replaceIo);
+
+        $this->updateOverviewForProcess($subProcess);
+        $this->updateOverviewForProcess($newInactiveProcess);
+
+        $this->totalFinishedProcesses++;
     }
 
     protected function updateOverviewForProcess(SubprocessInfo $subProcess): void
