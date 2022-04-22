@@ -16,7 +16,7 @@ class SubprocessInfo
     public const STATUS_TERMINATED = 'terminated';
     public const STATUS_ERROR      = 'error';
 
-    private int $maxOutputRows = 1000;
+    protected int $maxOutputRows = 1000;
 
     public Process $process;
     public SymfonyStyle $io;
@@ -28,9 +28,9 @@ class SubprocessInfo
 
     public bool $manualTerminated  = false;
 
-    private array $outputRows = [];
+    protected array $outputRows = [];
 
-    private $outputRowFilterCb;
+    protected $outputRowFilterCb;
 
     public function __construct(
         Process $process,
