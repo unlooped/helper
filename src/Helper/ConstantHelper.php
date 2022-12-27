@@ -2,9 +2,11 @@
 
 namespace Unlooped\Helper;
 
+use function Symfony\Component\String\u;
+
 class ConstantHelper {
 
-    private static $cache = [];
+    private static array $cache = [];
 
     public static function getList(string $startWith): array
     {
@@ -24,7 +26,7 @@ class ConstantHelper {
         try {
             $oClass = new \ReflectionClass($class);
             $res = array_filter($oClass->getConstants(), static function($el) use ($startWith) {
-                return StringHelper::startsWith($el, $startWith . '_');
+                return u($el)->startsWith($startWith . '_');
             }, ARRAY_FILTER_USE_KEY);
             $fr = array_combine($res, $res);
         } catch (\ReflectionException $e) {
